@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import hmac
 import hashlib
@@ -10,7 +10,6 @@ import os
 from dotenv import load_dotenv  # Import load_dotenv to load environment variables
 from urllib.parse import quote_plus
 import uuid
-import requests
 
 load_dotenv()
 

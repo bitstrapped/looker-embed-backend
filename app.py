@@ -140,8 +140,8 @@ class URL:
 def get_embed_url():
     # Replace these with your dynamic values
     user_id = request.args.get("user_id", generate_user_id())
-    first_name = "First Name"
-    last_name = "Last Name"
+    first_name = request.args.get("first_name", "First Name")
+    last_name = request.args.get("last_name", "Last Name")
     permissions = request.args.get(
         "permissions", '["access_data","see_looks","see_user_dashboards","see_lookml_dashboards"]'
     )
@@ -171,32 +171,6 @@ def get_embed_url():
     embed_url = "https://" + url.to_string()
 
     return jsonify({"embed_url": embed_url})
-
-@app.route('/proxy', methods=['GET'])
-def proxy():
-    # Get the Looker signed URL from the query parameter
-    signed_url = request.args.get('url')
-
-    if not signed_url:
-        return jsonify({"error": "Missing URL"}), 400
-
-    try:
-        # Make a request to the Looker server
-        looker_response = requests.get(signed_url, stream=True)
-
-        # Check if request was successful
-        if looker_response.status_code != 200:
-            return jsonify({"error": "Failed to fetch Looker content"}), looker_response.status_code
-
-        # Create a custom response to remove the X-Frame-Options header
-        headers = {key: value for key, value in looker_response.headers.items() if key.lower() != 'x-frame-options'}
-        print(headers)
-        # Return the response with modified headers
-        return Response(looker_response.content, headers=headers, status=looker_response.status_code)
-
-    except requests.RequestException as e:
-        return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=9607)

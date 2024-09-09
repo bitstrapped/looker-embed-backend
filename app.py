@@ -20,6 +20,7 @@ CORS(app)
 LOOKER_HOST = os.getenv("LOOKER_HOST")
 LOOKER_EMBED_SECRET = os.getenv("LOOKER_EMBED_SECRET")
 LOOKER_DASHBOARD_PATH = os.getenv("LOOKER_DASHBOARD_PATH")
+LOOKER_EXPLORE_PATH = os.getenv("LOOKER_EXPLORE_PATH")
 
 def generate_user_id():
     # Generate a random UUID
@@ -138,11 +139,12 @@ class URL:
 @app.route("/get_embed_url", methods=["GET"])
 def get_embed_url():
     # Replace these with your dynamic values
+    embed_type = request.args.get("type", "dashboard")
     user_id = request.args.get("user_id", generate_user_id())
     first_name = request.args.get("first_name", "First Name")
     last_name = request.args.get("last_name", "Last Name")
     permissions = request.args.get(
-        "permissions", '["access_data","see_looks","see_user_dashboards","see_lookml_dashboards"]'
+        "permissions", '["access_data","see_looks","explore", "see_user_dashboards","see_lookml_dashboards"]'
     )
     models = request.args.get("models", '["returnalyze"]')
     group_ids = request.args.get("group_ids", "[]")
@@ -150,7 +152,11 @@ def get_embed_url():
     user_attributes = request.args.get("user_attributes", "{}")
     access_filters = request.args.get("access_filters", "{}")
     session_length = 3600
-    embed_url = LOOKER_DASHBOARD_PATH
+
+    if embed_type == "explore":
+        embed_url = LOOKER_EXPLORE_PATH
+    else:  # Default to dashboard
+        embed_url = LOOKER_DASHBOARD_PATH
 
     looker = Looker(LOOKER_HOST, LOOKER_EMBED_SECRET)
     user = User(
